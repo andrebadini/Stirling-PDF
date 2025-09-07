@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html th:lang="${#locale.language}" th:dir="#{language.direction}" th:data-language="${#locale.toString()}" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <th:block th:insert="~{fragments/common :: head(title=#{vision_ocr.title}, header=#{vision_ocr.header})}"></th:block>
+    <script>
+        function providerChanged() {
+            const provider = document.getElementById('provider').value;
+            const openAiSettings = document.getElementById('openai-settings');
+            
+            // Hide all provider settings
+            openAiSettings.style.display = 'none';
+
+            // Show settings for selected provider
+            if (provider === 'openai') {
+                openAiSettings.style.display = 'block';
+            }
+            // Add else if for other providers like gemini, local, etc.
+        }
+    </script>
+</head>
+
+<body>
+    <th:block th:insert="~{fragments/common :: game}"></th:block>
+    <div id="page-container">
+        <div id="content-wrap">
+            <th:block th:insert="~{fragments/navbar.html :: navbar}"></th:block>
+            <br><br>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 bg-card">
+                        <div class="tool-header">
+                            <span class="material-symbols-rounded tool-header-icon other">psychology</span>
+                            <span class="tool-header-text" th:text="#{vision_ocr.header}"></span>
+                        </div>
+                        <form action="/api/v1/misc/vision-ocr" method="post" enctype="multipart/form-data" class="mb-3">
+                            <div th:replace="~{fragments/common :: fileSelector(name='fileInput', multipleInputsForSingleRequest=false, accept='application/pdf')}"></div>
+                            
+                            <div class="mb-3">
+                                <label for="provider" class="form-label">OCR Provider</label>
+                                <select id="provider" name="provider" class="form-control" onchange="providerChanged()">
+                                    <option value="openai">OpenAI</option>
+                                    <!-- Add other providers here -->
+                                </select>
+                            </div>
+
+                            <div id="openai-settings">
+                                <div class="mb-3">
+                                    <label for="openai-apiKey" class="form-label">OpenAI API Key</label>
+                                    <input type="password" id="openai-apiKey" name="providerSettings[apiKey]" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="openai-model" class="form-label">Model</label>
+                                    <input type="text" id="openai-model" name="providerSettings[model]" class="form-control" value="gpt-4o-mini">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="openai-detail" class="form-label">Detail</label>
+                                    <select id="openai-detail" name="providerSettings[detail]" class="form-control">
+                                        <option value="high">High</option>
+                                        <option value="low">Low</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="outputFormat" class="form-label">Output Format</label>
+                                <select id="outputFormat" name="outputFormat" class="form-control">
+                                    <option value="markdown">Markdown</option>
+                                    <option value="text">Plain Text</option>
+                                </select>
+                            </div>
+
+                            <br>
+                            <button type="submit" id="submitBtn" class="btn btn-primary" th:text="#{vision_ocr.submit}"></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <th:block th:insert="~{fragments/footer.html :: footer}"></th:block>
+    </div>
+    <script>
+        // Call providerChanged on page load to set initial state
+        document.addEventListener('DOMContentLoaded', providerChanged);
+    </script>
+</body>
+</html>
